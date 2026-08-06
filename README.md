@@ -80,11 +80,3 @@ The final model will be evaluated using:
 - SSIM (Structural Similarity Index)
 - LPIPS (Learned Perceptual Image Patch Similarity)
 
-## Authors
-
-- Durvasula Manognya
-- DeepSaanvi
-
-## License
-
-This repository has been developed as part of the AI-Based Restoration of Degraded Images for Semiconductor Inspection Hackathon.
