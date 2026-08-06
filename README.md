@@ -19,6 +19,43 @@ This project focuses on restoring degraded semiconductor inspection images using
 - NumPy
 - Matplotlib
 
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/DSKManognya/AI-Based-Semiconductor-Image-Restoration.git
+```
+
+Move into the project directory:
+
+```bash
+cd AI-Based-Semiconductor-Image-Restoration
+```
+
+Install the required dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Project Workflow
+
+```text
+Noisy Image
+      │
+      ▼
+Dataset Loader
+      │
+      ▼
+Deep Learning Model
+      │
+      ▼
+Restored Image
+      │
+      ▼
+Evaluation (PSNR, SSIM, LPIPS)
+```
 ## Dataset
 
 ### Training Dataset
@@ -51,6 +88,17 @@ AI-Based-Semiconductor-Image-Restoration/
 └── .gitignore
 ```
 
+## Dataset Structure
+
+```text
+Dataset/
+├── train/
+│   ├── GT/
+│   └── NoisyLR/
+│
+└── test/
+    └── NoisyLR/
+```
 ## Current Progress
 
 | Task | Status |
