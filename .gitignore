@@ -30,3 +30,15 @@ outputs/
 
 # Windows
 Thumbs.db
+
+.venv/
+__pycache__/
+*.pyc
+
+NAFNet/figure/
+NAFNet/demo/
+NAFNet/docs/
+NAFNet/README.md
+NAFNet/LICENSE
+NAFNet/.gitignore
+
