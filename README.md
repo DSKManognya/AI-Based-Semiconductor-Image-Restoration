@@ -1,130 +1,34 @@
 # AI-Based Restoration of Degraded Semiconductor Inspection Images
 
-## Problem Statement
+## About the Project
 
-This project focuses on restoring degraded semiconductor inspection images using deep learning. The input images are affected by Gaussian noise, speckle noise, and low-resolution degradation. The objective is to reconstruct high-quality images that closely match the corresponding Ground Truth (GT) images.
+Semiconductor inspection images can lose detail because of noise and reduced spatial resolution. This makes it harder to see small features and defects clearly.
 
-## Objectives
+In this project, we use a deep learning-based image restoration model to take a degraded low-resolution semiconductor image and reconstruct a cleaner, higher-resolution version.
 
-- Restore degraded semiconductor inspection images.
-- Develop a robust deep learning-based image restoration pipeline.
-- Evaluate the model using standard image restoration metrics.
-- Provide a reproducible implementation for training and inference.
+We use **NAFNetSR** as the main restoration backbone and adapt it for our single-channel semiconductor images.
 
-## Technology Stack
+---
 
-- Python
-- PyTorch
-- OpenCV
-- NumPy
-- Matplotlib
+## What We Are Trying to Do
 
-## Installation
+Our input images are:
 
-Clone the repository:
+- Grayscale
+- 128 × 128 pixels
+- Affected by noise and resolution degradation
 
-```bash
-git clone https://github.com/DSKManognya/AI-Based-Semiconductor-Image-Restoration.git
-```
+The corresponding ground-truth images are:
 
-Move into the project directory:
+- Grayscale
+- 256 × 256 pixels
+- Clean reference images
 
-```bash
-cd AI-Based-Semiconductor-Image-Restoration
-```
-
-Install the required dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-## Project Workflow
+So the main task is:
 
 ```text
-Noisy Image
-      │
-      ▼
-Dataset Loader
-      │
-      ▼
-Deep Learning Model
-      │
-      ▼
-Restored Image
-      │
-      ▼
-Evaluation (PSNR, SSIM, LPIPS)
-```
-## Dataset
-
-### Training Dataset
-
-- Ground Truth (GT)
-- NoisyLR
-
-### Test Dataset
-
-- NoisyLR
-
-## Project Structure
-
-```text
-AI-Based-Semiconductor-Image-Restoration/
-│
-├── Dataset/
-│   ├── train/
-│   └── test/
-│
-├── checkpoints/
-├── models/
-├── notebooks/
-├── outputs/
-├── src/
-│
-├── train.py
-├── requirements.txt
-├── README.md
-└── .gitignore
-```
-
-## Dataset Structure
-
-```text
-Dataset/
-├── train/
-│   ├── GT/
-│   └── NoisyLR/
-│
-└── test/
-    └── NoisyLR/
-```
-## Current Progress
-
-| Task | Status |
-|------|--------|
-| Project Setup | Completed |
-| Dataset Exploration | Completed |
-| Dataset Validation | Completed |
-| Baseline Model Selection | In Progress |
-| Model Integration | Pending |
-| Training | Pending |
-| Evaluation | Pending |
-
-## Repository Contents
-
-- Dataset inspection and validation scripts
-- Training pipeline
-- Inference pipeline
-- Evaluation scripts
-- Model checkpoints
-- Restored output images
-
-## Evaluation Metrics
-
-The final model will be evaluated using:
-
-- PSNR (Peak Signal-to-Noise Ratio)
-- SSIM (Structural Similarity Index)
-- LPIPS (Learned Perceptual Image Patch Similarity)
-
+128 × 128 degraded image
+          ↓
+       NAFNetSR
+          ↓
+256 × 256 restored image
