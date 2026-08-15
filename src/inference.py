@@ -1,5 +1,7 @@
 import sys
 import os
+import argparse
+
 import numpy as np
 import torch
 
@@ -9,12 +11,37 @@ from basicsr.models.archs.NAFSSR_arch import NAFNetSR
 
 
 # --------------------------------------------------
-# Configuration
+# Arguments
 # --------------------------------------------------
 
-INPUT_DIR = "Dataset/test/NoisyLR"
-OUTPUT_DIR = "outputs/test_predictions"
-CHECKPOINT_PATH = "checkpoints/nafnet_sr_baseline.pth"
+parser = argparse.ArgumentParser(
+    description="NAFNetSR inference for semiconductor image restoration"
+)
+
+parser.add_argument(
+    "--input_dir",
+    required=True,
+    help="Directory containing degraded .npy images"
+)
+
+parser.add_argument(
+    "--output_dir",
+    required=True,
+    help="Directory where restored .npy images will be saved"
+)
+
+parser.add_argument(
+    "--checkpoint",
+    required=True,
+    help="Path to trained NAFNetSR checkpoint"
+)
+
+args = parser.parse_args()
+
+
+INPUT_DIR = args.input_dir
+OUTPUT_DIR = args.output_dir
+CHECKPOINT_PATH = args.checkpoint
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -49,7 +76,7 @@ model = model.to(device)
 
 
 # --------------------------------------------------
-# Load trained checkpoint
+# Load checkpoint
 # --------------------------------------------------
 
 checkpoint = torch.load(
@@ -75,7 +102,6 @@ if "ssim" in checkpoint:
 
 # --------------------------------------------------
 # Test images
-# --------------------------------------------------
 
 test_files = sorted(
     [
@@ -85,13 +111,12 @@ test_files = sorted(
     ]
 )
 
-print("Test images:", len(test_files))
-print()
+print("Input images:", len(test_files))
 
 
-# --------------------------------------------------
+
 # Inference
-# --------------------------------------------------
+
 
 with torch.no_grad():
 
@@ -117,7 +142,7 @@ with torch.no_grad():
 
         image_tensor = image_tensor.to(device)
 
-        # NAFNetSR inference
+        # Model inference
         output = model(image_tensor)
 
         # Keep output in valid image range
@@ -152,8 +177,8 @@ with torch.no_grad():
 
 
 print()
-print("================================")
-print("TEST INFERENCE COMPLETED")
-print("================================")
+
+print("INFERENCE COMPLETED")
+
 print("Input images :", len(test_files))
 print("Output folder:", OUTPUT_DIR)
