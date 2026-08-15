@@ -1,4 +1,5 @@
 import sys
+import os
 import numpy as np
 import torch
 
@@ -7,13 +8,35 @@ sys.path.append("NAFNet")
 from basicsr.models.archs.NAFSSR_arch import NAFNetSR
 
 
+# --------------------------------------------------
+# Configuration
+# --------------------------------------------------
+
+INPUT_DIR = "Dataset/test/NoisyLR"
+OUTPUT_DIR = "outputs/test_predictions"
+CHECKPOINT_PATH = "checkpoints/nafnet_sr_baseline.pth"
+
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+
+# --------------------------------------------------
 # Device
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# --------------------------------------------------
+
+device = torch.device(
+    "cuda" if torch.cuda.is_available() else "cpu"
+)
 
 print("Using device:", device)
 
+if torch.cuda.is_available():
+    print("GPU:", torch.cuda.get_device_name(0))
 
-# Create single-image NAFNetSR
+
+# --------------------------------------------------
+# Model
+# --------------------------------------------------
+
 model = NAFNetSR(
     up_scale=2,
     width=32,
@@ -23,52 +46,114 @@ model = NAFNetSR(
 )
 
 model = model.to(device)
-model.eval()
-
-print("NAFNetSR created successfully!")
 
 
-# Load one degraded image
-image_path = "Dataset/train/NoisyLR/000000.npy"
+# --------------------------------------------------
+# Load trained checkpoint
+# --------------------------------------------------
 
-image = np.load(image_path)
-
-print("Input NumPy shape:", image.shape)
-print("Input dtype:", image.dtype)
-print("Input range:", image.min(), "to", image.max())
-
-
-# NumPy → PyTorch
-image_tensor = torch.from_numpy(image).float()
-
-# [128,128] → [1,128,128]
-image_tensor = image_tensor.unsqueeze(0)
-
-# [1,128,128] → [1,1,128,128]
-image_tensor = image_tensor.unsqueeze(0)
-
-image_tensor = image_tensor.to(device)
-
-print("Input tensor shape:", image_tensor.shape)
-
-
-# Inference
-with torch.no_grad():
-    output = model(image_tensor)
-
-
-print("Output tensor shape:", output.shape)
-print(
-    "Output range:",
-    output.min().item(),
-    "to",
-    output.max().item()
+checkpoint = torch.load(
+    CHECKPOINT_PATH,
+    map_location=device,
+    weights_only=False
 )
 
+model.load_state_dict(
+    checkpoint["model_state_dict"]
+)
 
-# Save output
-output = output.squeeze().cpu().numpy()
+model.eval()
 
-np.save("outputs/nafnet_sr_test.npy", output)
+print("Loaded checkpoint:", CHECKPOINT_PATH)
 
-print("Saved output to: outputs/nafnet_sr_test.npy")
+if "psnr" in checkpoint:
+    print("Checkpoint PSNR:", checkpoint["psnr"])
+
+if "ssim" in checkpoint:
+    print("Checkpoint SSIM:", checkpoint["ssim"])
+
+
+# --------------------------------------------------
+# Test images
+# --------------------------------------------------
+
+test_files = sorted(
+    [
+        f
+        for f in os.listdir(INPUT_DIR)
+        if f.endswith(".npy")
+    ]
+)
+
+print("Test images:", len(test_files))
+print()
+
+
+# --------------------------------------------------
+# Inference
+# --------------------------------------------------
+
+with torch.no_grad():
+
+    for i, filename in enumerate(test_files):
+
+        input_path = os.path.join(
+            INPUT_DIR,
+            filename
+        )
+
+        image = np.load(input_path).astype(
+            np.float32
+        )
+
+        # [128,128]
+        image_tensor = torch.from_numpy(image)
+
+        # [128,128] -> [1,128,128]
+        image_tensor = image_tensor.unsqueeze(0)
+
+        # [1,128,128] -> [1,1,128,128]
+        image_tensor = image_tensor.unsqueeze(0)
+
+        image_tensor = image_tensor.to(device)
+
+        # NAFNetSR inference
+        output = model(image_tensor)
+
+        # Keep output in valid image range
+        output = torch.clamp(
+            output,
+            0.0,
+            1.0
+        )
+
+        # [1,1,256,256] -> [256,256]
+        output = (
+            output
+            .squeeze()
+            .cpu()
+            .numpy()
+        )
+
+        output_path = os.path.join(
+            OUTPUT_DIR,
+            filename
+        )
+
+        np.save(
+            output_path,
+            output
+        )
+
+        if (i + 1) % 50 == 0:
+            print(
+                f"Processed {i + 1}/{len(test_files)}"
+            )
+
+
+print()
+print("================================")
+print("TEST INFERENCE COMPLETED")
+print("================================")
+print("Input images :", len(test_files))
+print("Output folder:", OUTPUT_DIR)
