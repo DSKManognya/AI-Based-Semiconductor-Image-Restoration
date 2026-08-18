@@ -24,15 +24,13 @@ The corresponding ground-truth images are:
 
 The task can be summarized as:
 
-```text
-128 × 128 degraded image
-          │
-          ▼
-      NAFNetSR
-          │
-          ▼
-256 × 256 restored image
-```
+    128 × 128 degraded image
+              │
+              ▼
+          NAFNetSR
+              │
+              ▼
+    256 × 256 restored image
 
 ---
 
@@ -108,7 +106,15 @@ The final model was run on all **400 unseen test images**.
 
 The challenge test set does not contain ground-truth images, so PSNR, SSIM and LPIPS cannot be calculated for these images. The restored outputs are therefore provided for visual evaluation.
 
-All 400 test images were successfully processed.
+All **400/400 test images** were successfully processed.
+
+Each output:
+
+- Has shape **256 × 256**
+- Uses `float32`
+- Contains values within **[0, 1]**
+- Contains no NaN or Inf values
+- Retains the same filename as its input
 
 ---
 
@@ -132,71 +138,55 @@ A short GPU warm-up was performed before measuring inference time.
 
 ### 1. Clone the repository
 
-```bash
-git clone https://github.com/DSKManognya/AI-Based-Semiconductor-Image-Restoration.git
-cd AI-Based-Semiconductor-Image-Restoration
-```
+    git clone https://github.com/DSKManognya/AI-Based-Semiconductor-Image-Restoration.git
+    cd AI-Based-Semiconductor-Image-Restoration
 
 ### 2. Install dependencies
 
 Create and activate a Python virtual environment if needed, then install the required packages:
 
-```bash
-pip install -r requirements.txt
-```
+    pip install -r requirements.txt
 
-### 3. Run inference
+### 3. Run the submission
 
-The inference script accepts three arguments:
+The official hackathon entry point is `run.py`.
 
-- `--input_dir`: directory containing degraded `.npy` images
-- `--output_dir`: directory where restored images will be saved
-- `--checkpoint`: path to the trained model checkpoint
+The required command format is:
 
-Example:
+    python run.py <input-dir> <output-dir>
 
-```bash
-python src/inference.py \
-    --input_dir Dataset/test/NoisyLR \
-    --output_dir outputs/test_predictions \
-    --checkpoint checkpoints_submission/nafnet_sr_baseline.pth
-```
+For example:
 
-For Windows PowerShell:
+    python run.py Dataset\test\NoisyLR outputs\test_predictions
 
-```powershell
-python src\inference.py `
-    --input_dir Dataset\test\NoisyLR `
-    --output_dir outputs\test_predictions `
-    --checkpoint checkpoints_submission\nafnet_sr_baseline.pth
-```
+The script:
 
-The script reads every `.npy` image from the input directory and saves the corresponding restored 256 × 256 `.npy` image to the output directory.
+- Reads all `.npy` files from the input directory
+- Loads the trained NAFNetSR model from `models/`
+- Restores each image to 256 × 256 resolution
+- Saves one `.npy` output for every input
+- Preserves the original filenames
+- Keeps output values within the range [0, 1]
+- Checks for invalid NaN or Inf values
 
-No changes to the Python source code are required.
+No source-code changes, API keys, internet access, additional model downloads, or user interaction are required during inference.
 
----
-
-## Training From Scratch
+### 4. Train from scratch
 
 The training pipeline is provided in `train.py`.
 
 Run:
 
-```bash
-python train.py
-```
+    python train.py
 
 The training data should be arranged as:
 
-```text
-Dataset/
-├── train/
-│   ├── NoisyLR/
-│   └── GT/
-└── test/
-    └── NoisyLR/
-```
+    Dataset/
+    ├── train/
+    │   ├── NoisyLR/
+    │   └── GT/
+    └── test/
+        └── NoisyLR/
 
 The training script creates the fixed 90/10 train-validation split and saves the best model based on validation PSNR.
 
@@ -204,29 +194,28 @@ The training script creates the fixed 90/10 train-validation split and saves the
 
 ## Repository Structure
 
-```text
-AI-Based-Semiconductor-Image-Restoration/
-│
-├── checkpoints_submission/
-│   └── nafnet_sr_baseline.pth
-│
-├── NAFNet/
-│   └── NAFSSR implementation
-│
-├── src/
-│   ├── dataset.py
-│   ├── inference.py
-│   ├── evaluate_lpips.py
-│   ├── benchmark_inference.py
-│   ├── compare_checkpoints.py
-│   └── ...
-│
-├── train.py
-├── experiments.md
-├── requirements.txt
-├── README.md
-└── .gitignore
-```
+    AI-Based-Semiconductor-Image-Restoration/
+    │
+    ├── models/
+    │   └── nafnet_sr_baseline.pth
+    │
+    ├── NAFNet/
+    │   └── NAFSSR implementation
+    │
+    ├── src/
+    │   ├── dataset.py
+    │   ├── inference.py
+    │   ├── evaluate_lpips.py
+    │   ├── benchmark_inference.py
+    │   ├── compare_checkpoints.py
+    │   └── ...
+    │
+    ├── run.py
+    ├── train.py
+    ├── experiments.md
+    ├── requirements.txt
+    ├── README.md
+    └── .gitignore
 
 The dataset and generated outputs are not stored directly in the Git repository because of their size.
 
@@ -234,15 +223,22 @@ The dataset and generated outputs are not stored directly in the Git repository 
 
 ## Final Model
 
-The final submitted checkpoint is:
+The final submitted model is:
 
-```text
-checkpoints_submission/nafnet_sr_baseline.pth
-```
+    models/nafnet_sr_baseline.pth
 
-The checkpoint is approximately **507 KB** and can be loaded directly by `src/inference.py`.
+The checkpoint is approximately **507 KB** and is loaded automatically by `run.py`.
+
+The model configuration is:
+
+- NAFNetSR architecture
+- Single-channel input
+- 2× super-resolution
+- Model width: 32
+- 4 NAF blocks
 
 ---
+
 ## Restored Test Outputs
 
 The final model produced restored outputs for all 400 test images.
@@ -253,12 +249,11 @@ The complete restored test set contains **400 `.npy` files** and is approximatel
 
 ---
 
-
 ## Open-Source Attribution
 
 This project uses the publicly available **NAFNet/NAFSSR** implementation as its restoration backbone.
 
-The NAFNetSR architecture itself was not developed by our team. Our work focused on adapting the architecture to the provided single-channel semiconductor dataset, building the dataset and training pipeline, running controlled experiments, evaluating the results, and preparing the inference pipeline for the challenge.
+The NAFNetSR architecture itself was not developed by our team. Our work focused on adapting the architecture to the provided single-channel semiconductor dataset, building the dataset and training pipeline, running controlled experiments, evaluating the results, and preparing the reproducible inference pipeline for the challenge.
 
 Please refer to the original NAFNet/NAFSSR work for the architecture and implementation.
 
@@ -278,4 +273,4 @@ Please refer to the original NAFNet/NAFSSR work for the architecture and impleme
 
 **BVRIT Hyderabad College of Engineering for Women**
 
-Developed as part of the i4C / KLA hackathon challenge on AI-based restoration of degraded semiconductor inspection images.
+Developed as part of the i4C / KLA Hackathon 2026 challenge on AI-based restoration of degraded semiconductor inspection images.
