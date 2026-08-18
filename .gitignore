@@ -41,4 +41,6 @@ NAFNet/docs/
 NAFNet/README.md
 NAFNet/LICENSE
 NAFNet/.gitignore
+!checkpoints_submission/
+!checkpoints_submission/nafnet_sr_baseline.pth
 
