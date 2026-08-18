@@ -243,14 +243,16 @@ checkpoints_submission/nafnet_sr_baseline.pth
 The checkpoint is approximately **507 KB** and can be loaded directly by `src/inference.py`.
 
 ---
-
 ## Restored Test Outputs
 
 The final model produced restored outputs for all 400 test images.
 
 The complete restored test set contains **400 `.npy` files** and is approximately **91 MB when compressed**. It is provided separately from the Git repository because of its size.
 
+[Download the restored test outputs](https://github.com/DSKManognya/AI-Based-Semiconductor-Image-Restoration/releases/download/v1.0.0-final/submission_test_outputs.zip)
+
 ---
+
 
 ## Open-Source Attribution
 
